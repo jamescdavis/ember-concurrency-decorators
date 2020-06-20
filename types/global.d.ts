@@ -1,0 +1,1 @@
+import 'ember-concurrency-async';
