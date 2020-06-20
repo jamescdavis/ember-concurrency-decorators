@@ -17,7 +17,10 @@ import {
   TaskFunctionArgs,
   TaskFunctionReturnType,
   EncapsulatedTaskDescriptorArgs,
-  EncapsulatedTaskDescriptorReturnType
+  EncapsulatedTaskDescriptorReturnType,
+  AsyncTaskFunction as GenericAsyncTaskFunction,
+  AsyncTaskFunctionArgs,
+  AsyncTaskFunctionReturnType
 } from 'ember-concurrency';
 
 export { default as lastValue } from './last-value';
@@ -26,6 +29,7 @@ type TaskFunction = GenericTaskFunction<unknown, unknown[]>;
 type TaskProperty = GenericTaskProperty<unknown, unknown[]>;
 type TaskGroupProperty = GenericTaskGroupProperty<unknown>;
 type EncapsulatedTask = GenericEncapsulatedTask<unknown, unknown[]>;
+type AsyncTaskFunction = GenericAsyncTaskFunction<unknown, unknown[]>;
 
 type OptionsFor<T extends object> = {
   [K in OptionKeysFor<T>]?: OptionTypeFor<T, T[K]>;
@@ -270,6 +274,11 @@ export function task<T extends EncapsulatedTask>(
     EncapsulatedTaskDescriptorArgs<T>
   > &
     EmberObject
+>;
+export function task<T extends AsyncTaskFunction>(
+  taskFn: T
+): ComputedProperty<
+  Task<AsyncTaskFunctionReturnType<T>, AsyncTaskFunctionArgs<T>> & EmberObject
 >;
 export function task(
   ...args:
