@@ -127,6 +127,60 @@ module('Unit | decorators', function() {
     assert.equal(subject.get('d').get('last')?.value, 34);
   });
 
+  test('Basic decorators functionality (using wrapper for TS support and async)', function(assert) {
+    assert.expect(5);
+
+    class TestSubject extends EmberObject {
+      doneYet = true;
+
+      @task
+      doStuff = task(async function(this: TestSubject) {
+        await this.doneYet;
+        return 123;
+      });
+
+      @restartableTask
+      a = task(async () => {
+        await this.doneYet;
+        return 456;
+      });
+
+      @keepLatestTask
+      b = task(async () => {
+        await this.doneYet;
+        return 789;
+      });
+
+      @dropTask
+      c = task(async () => {
+        await this.doneYet;
+        return 12;
+      });
+
+      @enqueueTask
+      d = task(async (argument: string) => {
+        await this.doneYet;
+        await argument;
+        return 34;
+      });
+    }
+
+    let subject!: TestSubject;
+    run(() => {
+      subject = TestSubject.create();
+      subject.get('doStuff').perform();
+      subject.get('a').perform();
+      subject.get('b').perform();
+      subject.get('c').perform();
+      subject.get('d').perform('foo');
+    });
+    assert.equal(subject.get('doStuff').get('last')?.value, 123);
+    assert.equal(subject.get('a').get('last')?.value, 456);
+    assert.equal(subject.get('b').get('last')?.value, 789);
+    assert.equal(subject.get('c').get('last')?.value, 12);
+    assert.equal(subject.get('d').get('last')?.value, 34);
+  });
+
   // This has actually never worked.
   test('Encapsulated tasks', function(assert) {
     assert.expect(1);
